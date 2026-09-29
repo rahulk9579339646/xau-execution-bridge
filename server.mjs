@@ -1,3 +1,4 @@
+```js
 import express from "express";
 
 const app = express();
@@ -24,14 +25,12 @@ let lastSignal = null;
 */
 let lastFetch = null;
 
-
 /* =========================================================
    CORS
    Liquid Chart browser requests require CORS.
 ========================================================= */
 
 app.use((req, res, next) => {
-
   res.setHeader(
     "Access-Control-Allow-Origin",
     "*"
@@ -52,16 +51,13 @@ app.use((req, res, next) => {
   }
 
   next();
-
 });
-
 
 /* =========================================================
    HEALTH
 ========================================================= */
 
 app.get("/", (req, res) => {
-
   res.json({
     success: true,
     service: "XAU Execution Bridge",
@@ -69,43 +65,33 @@ app.get("/", (req, res) => {
     sourceBot: SOURCE_BOT_URL,
     time: new Date().toISOString()
   });
-
 });
-
 
 /* =========================================================
    GET AI SIGNAL
 ========================================================= */
 
 app.get("/signal", async (req, res) => {
-
   try {
-
-    const response =
-      await fetch(
-        `${SOURCE_BOT_URL}/mtf-analysis`,
-        {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          }
+    const response = await fetch(
+      `${SOURCE_BOT_URL}/mtf-analysis`,
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
         }
-      );
+      }
+    );
 
     if (!response.ok) {
-
       throw new Error(
         `Source bot HTTP ${response.status}`
       );
-
     }
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
-    lastFetch =
-      new Date().toISOString();
-
+    lastFetch = new Date().toISOString();
 
     /* -----------------------------------------------------
        Read confirmation
@@ -122,7 +108,6 @@ app.get("/signal", async (req, res) => {
         confirmation.status || ""
       ).toUpperCase();
 
-
     /* -----------------------------------------------------
        Only confirmed signals are executable
     ----------------------------------------------------- */
@@ -130,22 +115,16 @@ app.get("/signal", async (req, res) => {
     let direction = null;
 
     if (status === "BUY CONFIRMED") {
-
       direction = "BUY";
-
     }
 
     if (status === "SELL CONFIRMED") {
-
       direction = "SELL";
-
     }
-
 
     /* -----------------------------------------------------
        Signal ID
-       Uses generated time + direction + price.
-       Liquid Chart will use this to avoid duplicates.
+       Liquid Chart can use this to avoid duplicates.
     ----------------------------------------------------- */
 
     const currentPrice =
@@ -162,13 +141,11 @@ app.get("/signal", async (req, res) => {
         ? `${direction}_${generatedAt}_${currentPrice}`
         : `WAITING_${generatedAt}`;
 
-
     /* -----------------------------------------------------
        Build normalized signal
     ----------------------------------------------------- */
 
     const signal = {
-
       success: true,
 
       executable:
@@ -212,21 +189,19 @@ app.get("/signal", async (req, res) => {
 
       fetchedAt:
         new Date().toISOString()
-
     };
 
-
-    lastSignal =
-      signal;
-
+    lastSignal = signal;
 
     res.json(signal);
 
-
   } catch (error) {
+    console.error(
+      "SIGNAL ERROR:",
+      error
+    );
 
     res.status(500).json({
-
       success: false,
 
       executable: false,
@@ -239,33 +214,24 @@ app.get("/signal", async (req, res) => {
 
       time:
         new Date().toISOString()
-
     });
-
   }
-
 });
-
 
 /* =========================================================
    LAST CACHED SIGNAL
 ========================================================= */
 
 app.get("/last-signal", (req, res) => {
-
   res.json({
-
     success: true,
 
     signal:
       lastSignal,
 
     lastFetch
-
   });
-
 });
-
 
 /* =========================================================
    ACKNOWLEDGEMENT
@@ -273,16 +239,12 @@ app.get("/last-signal", (req, res) => {
 ========================================================= */
 
 app.post("/ack", (req, res) => {
-
   const {
-
     signalId,
     direction,
     orderId,
     result
-
   } = req.body || {};
-
 
   console.log(
     "EXECUTION ACK:",
@@ -294,25 +256,18 @@ app.post("/ack", (req, res) => {
     }
   );
 
-
   res.json({
-
     success: true,
 
     acknowledged: true,
 
     signalId:
-
       signalId || null,
 
     time:
-
       new Date().toISOString()
-
   });
-
 });
-
 
 /* =========================================================
    SERVER
@@ -322,10 +277,9 @@ app.listen(
   PORT,
   "0.0.0.0",
   () => {
-
     console.log(
       `XAU Execution Bridge running on port ${PORT}`
     );
-
   }
 );
+```
