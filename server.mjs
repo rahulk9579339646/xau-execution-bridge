@@ -1,4 +1,3 @@
-```js
 import express from "express";
 
 const app = express();
@@ -73,6 +72,11 @@ app.get("/", (req, res) => {
 
 app.get("/signal", async (req, res) => {
   try {
+
+    /* -----------------------------------------------------
+       Fetch source bot
+    ----------------------------------------------------- */
+
     const response = await fetch(
       `${SOURCE_BOT_URL}/mtf-analysis`,
       {
@@ -92,24 +96,6 @@ app.get("/signal", async (req, res) => {
     const data = await response.json();
 
     lastFetch = new Date().toISOString();
-
-    return res.json({
-      success: true,
-      source: SOURCE_BOT_URL,
-      fetchedAt: lastFetch,
-      signal: data
-    });
-
-  } catch (error) {
-    console.error("SIGNAL FETCH ERROR:", error.message);
-
-    return res.status(500).json({
-      success: false,
-      error: error.message,
-      signal: null
-    });
-  }
-});
 
     /* -----------------------------------------------------
        Read confirmation
@@ -209,17 +195,26 @@ app.get("/signal", async (req, res) => {
         new Date().toISOString()
     };
 
+    /* -----------------------------------------------------
+       Save last signal
+    ----------------------------------------------------- */
+
     lastSignal = signal;
 
-    res.json(signal);
+    /* -----------------------------------------------------
+       Return normalized signal
+    ----------------------------------------------------- */
+
+    return res.json(signal);
 
   } catch (error) {
+
     console.error(
       "SIGNAL ERROR:",
       error
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
 
       executable: false,
@@ -241,6 +236,7 @@ app.get("/signal", async (req, res) => {
 ========================================================= */
 
 app.get("/last-signal", (req, res) => {
+
   res.json({
     success: true,
 
@@ -249,6 +245,7 @@ app.get("/last-signal", (req, res) => {
 
     lastFetch
   });
+
 });
 
 /* =========================================================
@@ -257,6 +254,7 @@ app.get("/last-signal", (req, res) => {
 ========================================================= */
 
 app.post("/ack", (req, res) => {
+
   const {
     signalId,
     direction,
@@ -285,6 +283,7 @@ app.post("/ack", (req, res) => {
     time:
       new Date().toISOString()
   });
+
 });
 
 /* =========================================================
@@ -295,9 +294,10 @@ app.listen(
   PORT,
   "0.0.0.0",
   () => {
+
     console.log(
       `XAU Execution Bridge running on port ${PORT}`
     );
+
   }
 );
-```
