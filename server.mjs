@@ -93,6 +93,24 @@ app.get("/signal", async (req, res) => {
 
     lastFetch = new Date().toISOString();
 
+    return res.json({
+      success: true,
+      source: SOURCE_BOT_URL,
+      fetchedAt: lastFetch,
+      signal: data
+    });
+
+  } catch (error) {
+    console.error("SIGNAL FETCH ERROR:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      signal: null
+    });
+  }
+});
+
     /* -----------------------------------------------------
        Read confirmation
     ----------------------------------------------------- */
